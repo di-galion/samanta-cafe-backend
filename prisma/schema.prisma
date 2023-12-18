@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @updatedAt @map("update_at")
+
+  isAdmin Boolean @default(false) @map("is_admin")
+
+  email      String @unique
+  password   String
+  name       String @unique
+  avatarPath String @default("uploads/default_avatar.png") @map("avatar_path")
+  phone      String
+
+  orders Order[]
+
+  favorites Product[]
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @updatedAt @map("update_at")
+
+  name        String   @unique
+  slug        String   @unique
+  price       Int
+  description String
+  images      String[]
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int      @map("category_id")
+
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?  @map("user_id")
+
+  sailes Sails[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @updatedAt @map("update_at")
+
+  name String @unique
+  slug String @unique
+
+  products Product[]
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updateAt  DateTime @updatedAt @map("update_at")
+
+  deliveryVariant String @map("delivery_variant")
+  deliveryDate    String @map("delivery_date")
+  deliveryTime    String @map("delivery_time")
+
+  email String
+  tel   String
+  name  String
+
+  street   String?
+  house    String?
+  entrance String?
+  floor    String?
+  room     String?
+  key      String?
+  comment  String?
+
+  cafeName String @map("cafe_name")
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @map("user_id")
+
+  sails Sails[]
+
+  status String
+  total  Int
+}
+
+model Sails {
+  id       Int    @id @default(autoincrement())
+  price    Int
+  quantity Int
+  name     String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @map("product_id")
+
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int   @map("order_id")
+}
